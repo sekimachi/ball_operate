@@ -125,6 +125,35 @@ class BallOperate(Node):
         self.cmd_pub.publish(Twist())  # 完全停止
         self.get_logger().info("強制捕捉完了")
 
+
+    def LED_control(self,status):
+        if status == 0:
+            self.msg_led.led_brightness = 1.0   
+            self.msg_led.led_index = 5          
+            self.msg_led.led_mode = "apply"      
+            self.msg_led.blink_duration = 1000.0 
+            if self.ball_color == "赤":                
+                self.msg_led.led_color = "RED"       
+            elif self.ball_color == "青":
+                self.msg_led.led_color = "BLUE"       
+            elif self.ball_color == "黄":
+                self.msg_led.led_color = "YELLOW"       
+
+        if status == 1:
+            self.msg_led.led_brightness = 1.0    
+            self.msg_led.led_index = 5           
+            self.msg_led.led_mode = "blink"      
+            self.msg_led.blink_duration = 250.0 
+            if self.ball_color == "赤":                
+                self.msg_led.led_color = "RED"       
+            elif self.ball_color == "青":
+                self.msg_led.led_color = "BLUE"       
+            elif self.ball_color == "黄":
+                self.msg_led.led_color = "YELLOW"           
+            
+        self.led_pub.publish(self.msg_led)
+
+
     # ===============================
     # 制御ループ
     # ===============================
@@ -174,30 +203,11 @@ class BallOperate(Node):
         if self.status != self.his_status:
             self.his_status = self.status
             if self.status == 0:
-                self.msg_led.led_brightness = 1.0   
-                self.msg_led.led_index = 5          
-                self.msg_led.led_mode = "apply"      
-                self.msg_led.blink_duration = 1000.0 
-                if self.ball_color == "赤":                
-                    self.msg_led.led_color = "RED"       
-                elif self.ball_color == "青":
-                    self.msg_led.led_color = "BLUE"       
-                elif self.ball_color == "黄":
-                    self.msg_led.led_color = "YELLOW"       
-
+                self.LED_control(0)
             if self.status == 1:
-                self.msg_led.led_brightness = 1.0    
-                self.msg_led.led_index = 5           
-                self.msg_led.led_mode = "blink"      
-                self.msg_led.blink_duration = 250.0 
-                if self.ball_color == "赤":                
-                    self.msg_led.led_color = "RED"       
-                elif self.ball_color == "青":
-                    self.msg_led.led_color = "BLUE"       
-                elif self.ball_color == "黄":
-                    self.msg_led.led_color = "YELLOW"           
+                self.LED_control(1)
             
-            self.led_pub.publish(self.msg_led)
+
 
         self.his_status = self.status
 
