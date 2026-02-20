@@ -25,12 +25,15 @@ class BallOperate(Node):
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel_ball', 10)
         self.capture_pub = self.create_publisher(Bool, 'ball_capture', 10)
         self.led_pub = self.create_publisher(LedControl,'led_control',10)
+        self.status_pub = self.create_publisher(Bool,'detect_ball_status',10)
 
         # ===== Subscriber =====
         self.create_subscription(BallInfo, 'ball_info', self.ball_cb, 10)
         self.create_subscription(String,'detect_ball_color',self.color_cb,10)
         self.create_subscription(Bool,'ball_operate_enable',self.enable_cb,10)
-        self.create_subscription(Bool, 'force_capture', self.force_capture_cb, 10)
+        self.create_subscription(Bool, 'ball_force_capture', self.ball_force_capture_cb, 10)
+        
+
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
 
@@ -66,15 +69,16 @@ class BallOperate(Node):
     # ===============================
     # 強制捕捉トリガーをうけとるコールバック
     # ===============================
-    def force_capture_cb(self, msg: Bool):
+    def ball_force_capture_cb(self, msg: Bool):
         if msg.data:
             self.get_logger().info("強制捕捉をしたよ")
-            self.force_capture()
+            self.ball_force_capture()
+
 
     # ===============================
     #  強制捕捉処理
     # ===============================
-    def force_capture(self):
+    def ball_force_capture(self):
         self.retreating = False
         self.stopping = False
         self.stop_count = 0
