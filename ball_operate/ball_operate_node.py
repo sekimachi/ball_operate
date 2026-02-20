@@ -32,7 +32,7 @@ class BallOperate(Node):
         self.create_subscription(String,'detect_ball_color',self.color_cb,10)
         self.create_subscription(Bool,'ball_operate_enable',self.enable_cb,10)
         self.create_subscription(Bool, 'ball_force_capture', self.ball_force_capture_cb, 10)
-        
+        self.create_subscription(Bool, 'ball_force_stop', self.ball_force_stop_cb, 10)
 
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
@@ -73,6 +73,36 @@ class BallOperate(Node):
         if msg.data:
             self.get_logger().info("強制捕捉をしたよ")
             self.ball_force_capture()
+
+    # ===============================
+    # 強制終了トリガーをうけとるコールバック
+    # ===============================
+    def ball_force_stop_cb(self, msg: Bool):
+        if msg.data:
+            self.get_logger().info("強制終了をしたよ")
+            self.ball_force_stop()
+
+    # ===============================
+    #  強制終了処理
+    # ===============================
+    def ball_force_stop(self):
+        self.retreating = False
+        self.stopping = False
+        self.stop_count = 0
+        self.back_count = 0
+        self.status = 0
+        self.enabled = False
+        self.msg_led.led_brightness = 0.0    
+        self.msg_led.led_index = 5           
+        self.msg_led.led_mode = "apply"      
+        self.msg_led.blink_duration = 250.0 
+        self.led_pub.publish(self.msg_led)
+
+        msg = Bool()
+        msg.data = False
+        self.status_pub.publish(msg)
+
+        self.cmd_pub.publish(Twist())  # 完全停止
 
 
     # ===============================
