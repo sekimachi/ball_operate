@@ -30,7 +30,7 @@ class BallOperate(Node):
         self.create_subscription(BallInfo, 'ball_info', self.ball_cb, 10)
         self.create_subscription(String,'detect_ball_color',self.color_cb,10)
         self.create_subscription(Bool,'ball_operate_enable',self.enable_cb,10)
-
+        self.create_subscription(Bool, 'force_capture', self.force_capture_cb, 10)
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
 
@@ -63,6 +63,32 @@ class BallOperate(Node):
     def ball_cb(self, msg: BallInfo):
         self.last_msg = msg
 
+    # ===============================
+    # 強制捕捉トリガーをうけとるコールバック
+    # ===============================
+    def force_capture_cb(self, msg: Bool):
+        if msg.data:
+            self.get_logger().info("強制捕捉をしたよ")
+            self.force_capture()
+
+    # ===============================
+    #  強制捕捉処理
+    # ===============================
+    def force_capture(self):
+        self.retreating = False
+        self.stopping = False
+        self.stop_count = 0
+        self.back_count = 0
+        self.status = 0
+        self.enabled = False
+        self.msg_led.led_brightness = 0.0    
+        self.msg_led.led_index = 5           
+        self.msg_led.led_mode = "apply"      
+        self.msg_led.blink_duration = 250.0 
+        self.led_pub.publish(self.msg_led)
+        self.capture_pub.publish(Bool(data=True))
+        self.cmd_pub.publish(Twist())  # 完全停止
+        self.get_logger().info("強制捕捉完了")
 
     # ===============================
     # 制御ループ
@@ -99,11 +125,10 @@ class BallOperate(Node):
                 self.enabled = False
                 self.status = 0
 
-                self.msg_led.led_brightness = 0.0    #明るさ　0.0～1.0
-                self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
-                self.msg_led.led_mode = "apply"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
-                self.msg_led.blink_duration = 250.0 #周期　1000で1秒                
-                self.msg_led.led_color = "WHITE"   
+                self.msg_led.led_brightness = 0.0    
+                self.msg_led.led_index = 5           
+                self.msg_led.led_mode = "apply"      
+                self.msg_led.blink_duration = 250.0 
                 self.led_pub.publish(self.msg_led)
 
                 self.capture_pub.publish(Bool(data=True))
@@ -114,10 +139,10 @@ class BallOperate(Node):
         if self.status != self.his_status:
             self.his_status = self.status
             if self.status == 0:
-                self.msg_led.led_brightness = 1.0    #明るさ　0.0～1.0
-                self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
-                self.msg_led.led_mode = "apply"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
-                self.msg_led.blink_duration = 1000.0 #周期　1000で1秒
+                self.msg_led.led_brightness = 1.0   
+                self.msg_led.led_index = 5          
+                self.msg_led.led_mode = "apply"      
+                self.msg_led.blink_duration = 1000.0 
                 if self.ball_color == "赤":                
                     self.msg_led.led_color = "RED"       
                 elif self.ball_color == "青":
@@ -126,10 +151,10 @@ class BallOperate(Node):
                     self.msg_led.led_color = "YELLOW"       
 
             if self.status == 1:
-                self.msg_led.led_brightness = 1.0    #明るさ　0.0～1.0
-                self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
-                self.msg_led.led_mode = "blink"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
-                self.msg_led.blink_duration = 250.0 #周期　1000で1秒
+                self.msg_led.led_brightness = 1.0    
+                self.msg_led.led_index = 5           
+                self.msg_led.led_mode = "blink"      
+                self.msg_led.blink_duration = 250.0 
                 if self.ball_color == "赤":                
                     self.msg_led.led_color = "RED"       
                 elif self.ball_color == "青":
