@@ -41,6 +41,7 @@ class BallOperate(Node):
         self.retreating = False
         self.stopping = False
         self.stop_count = 0 
+        self.status = 0 # 0:未検出　1:通常追従, 2:ボール捕獲
 
     # ===============================
     #  ON / OFFにつかうコールバック
@@ -87,17 +88,20 @@ class BallOperate(Node):
                 # 後退完了
                 self.retreating = False
                 self.enabled = False
+                self.status = 0
                 self.capture_pub.publish(Bool(data=True))
                 self.cmd_pub.publish(Twist())  # 完全停止
             return
 
         # ===== 未検出 =====
         if self.last_msg is None or not self.last_msg.detected:
+            self.status = 0
             twist.linear.y = -(VEL + 0.15)
             self.cmd_pub.publish(twist)
 
             return
-
+        
+        self.status = 1
         dx = self.last_msg.dx
         dy = self.last_msg.dy
         dep = self.last_msg.depth_cm
@@ -129,7 +133,7 @@ class BallOperate(Node):
             DEPTH_MIN <= dep <= DEPTH_MAX
         ):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
-
+            self.status = 0
             self.stopping = True
             self.stop_count = FPS * 6   # 6秒
             return
