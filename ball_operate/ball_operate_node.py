@@ -5,10 +5,7 @@ from std_msgs.msg import Bool
 from geometry_msgs.msg import Twist
 from imrc_messages.msg import BallInfo
 from imrc_messages.msg import LedControl
-import sys
-import termios
-import tty
-import threading
+from std_msgs.msg import String
 DX_TH = 10
 DY_TH = 10
 
@@ -31,8 +28,9 @@ class BallOperate(Node):
 
         # ===== Subscriber =====
         self.create_subscription(BallInfo, 'ball_info', self.ball_cb, 10)
-        
+        self.create_subscription(String,'detect_ball_color',self.color_cb,10)
         self.create_subscription(Bool,'ball_operate_enable',self.enable_cb,10)
+
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
 
@@ -49,39 +47,8 @@ class BallOperate(Node):
 
         self.msg_led = LedControl()
 
-        # ===== キーボード監視スレッド =====
-        self.key_thread = threading.Thread(target=self.key_listener, daemon=True)
-        self.key_thread.start()
-
-    # ===============================
-    #  ESCキー監視スレッド
-    # ===============================
-    def key_listener(self):
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        try:
-            tty.setraw(fd)
-            while True:
-                ch = sys.stdin.read(1)
-                if ch == '\x1b':  # ESCキー
-                    self.get_logger().info("ESC押下 → 強制捕捉")
-                    self.force_capture()
-        finally:
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-
-    # ===============================
-    #  強制捕捉処理
-    # ===============================
-    def force_capture(self):
-        self.retreating = False
-        self.stopping = False
-        self.stop_count = 0
-        self.back_count = 0
-        self.status = 0
-        self.enabled = False
-        self.capture_pub.publish(Bool(data=True))
-        self.cmd_pub.publish(Twist())  # 完全停止
-        self.get_logger().info("強制捕捉をしたよ！")
+    def color_cb(self,msg:String):
+        self.ball_color = msg.data
 
     # ===============================
     #  ON / OFFにつかうコールバック
@@ -96,23 +63,13 @@ class BallOperate(Node):
     def ball_cb(self, msg: BallInfo):
         self.last_msg = msg
 
+
     # ===============================
     # 制御ループ
     # ===============================
     def timer_cb(self):
         twist = Twist()
         
-        # LEDの制御
-        #self.his_status = self.status
-        #if self.status != self.his_status:
-        #    self.his_status = self.status
-        #    if self.status == 0:
-        #        self.msg_led.led_brightness = 1.0    #明るさ　0.0～1.0
-        #        self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
-        #        self.msg_led.led_color = "RED"       #色
-        #        self.msg_led.led_mode = "apply"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
-        #        self.msg_led.blink_duration = 1000.0 #周期　1000で1秒
-        #        self.led_pub.publish(self.msg_led)
 
         # ===== Action が来ていない or 終了後 =====
         if not self.enabled:
@@ -141,9 +98,48 @@ class BallOperate(Node):
                 self.retreating = False
                 self.enabled = False
                 self.status = 0
+
+                self.msg_led.led_brightness = 0.0    #明るさ　0.0～1.0
+                self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
+                self.msg_led.led_mode = "apply"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
+                self.msg_led.blink_duration = 250.0 #周期　1000で1秒                
+                self.msg_led.led_color = "WHITE"   
+                self.led_pub.publish(self.msg_led)
+
                 self.capture_pub.publish(Bool(data=True))
                 self.cmd_pub.publish(Twist())  # 完全停止
             return
+
+        #LEDの制御
+        if self.status != self.his_status:
+            self.his_status = self.status
+            if self.status == 0:
+                self.msg_led.led_brightness = 1.0    #明るさ　0.0～1.0
+                self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
+                self.msg_led.led_mode = "apply"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
+                self.msg_led.blink_duration = 1000.0 #周期　1000で1秒
+                if self.ball_color == "赤":                
+                    self.msg_led.led_color = "RED"       
+                elif self.ball_color == "青":
+                    self.msg_led.led_color = "BLUE"       
+                elif self.ball_color == "黄":
+                    self.msg_led.led_color = "YELLOW"       
+
+            if self.status == 1:
+                self.msg_led.led_brightness = 1.0    #明るさ　0.0～1.0
+                self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
+                self.msg_led.led_mode = "blink"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
+                self.msg_led.blink_duration = 250.0 #周期　1000で1秒
+                if self.ball_color == "赤":                
+                    self.msg_led.led_color = "RED"       
+                elif self.ball_color == "青":
+                    self.msg_led.led_color = "BLUE"       
+                elif self.ball_color == "黄":
+                    self.msg_led.led_color = "YELLOW"           
+            
+            self.led_pub.publish(self.msg_led)
+
+        self.his_status = self.status
 
         # ===== 未検出 =====
         if self.last_msg is None or not self.last_msg.detected:
@@ -184,7 +180,15 @@ class BallOperate(Node):
             DEPTH_MIN <= dep <= DEPTH_MAX
         ):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
-            self.status = 0
+            
+            
+            self.msg_led.led_brightness = 1.0    #明るさ　0.0～1.0
+            self.msg_led.led_index = 5           #私に使うことが許されるのは5番LED
+            self.msg_led.led_mode = "apply"      #gblinkはじんわりブリンク、applyはに点灯、brinnkは点滅
+            self.msg_led.blink_duration = 250.0 #周期　1000で1秒                
+            self.msg_led.led_color = "WHITE"   
+            self.led_pub.publish(self.msg_led)
+            
             self.stopping = True
             self.stop_count = FPS * 6   # 6秒
             return
