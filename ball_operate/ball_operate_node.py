@@ -9,8 +9,8 @@ from std_msgs.msg import String
 DX_TH = 10
 DY_TH = 10
 
-DEPTH_MIN = 34.0
-DEPTH_MAX = 37.0
+DEPTH_MIN = 49.0
+DEPTH_MAX = 42.0
 
 VEL = 0.05
 FPS = 15
