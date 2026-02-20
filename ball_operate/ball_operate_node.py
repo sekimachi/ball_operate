@@ -4,7 +4,7 @@ from rclpy.node import Node
 from std_msgs.msg import Bool
 from geometry_msgs.msg import Twist
 from imrc_messages.msg import BallInfo
-
+from imrc_messages.msg import LedControl
 
 DX_TH = 10
 DY_TH = 10
@@ -24,7 +24,7 @@ class BallOperate(Node):
         # ===== Publisher =====
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel_ball', 10)
         self.capture_pub = self.create_publisher(Bool, 'ball_capture', 10)
-
+        self.led_pub = self.create_publisher(LedControl,'led_control',10)
 
         # ===== Subscriber =====
         self.create_subscription(BallInfo, 'ball_info', self.ball_cb, 10)
@@ -95,6 +95,7 @@ class BallOperate(Node):
         if self.last_msg is None or not self.last_msg.detected:
             twist.linear.y = -(VEL + 0.15)
             self.cmd_pub.publish(twist)
+
             return
 
         dx = self.last_msg.dx
