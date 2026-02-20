@@ -9,7 +9,7 @@ from std_msgs.msg import String
 DX_TH = 10
 DY_TH = 10
 
-DEPTH_MIN = 49.0
+DEPTH_MIN = 39.0
 DEPTH_MAX = 42.0
 
 VEL = 0.05
