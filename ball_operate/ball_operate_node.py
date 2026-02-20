@@ -13,7 +13,7 @@ DY_TH = 10
 DEPTH_MIN = 39.0
 DEPTH_MAX = 42.0
 
-VEL = 0.05
+VEL = 0.03
 FPS = 15
 
 
@@ -237,9 +237,11 @@ class BallOperate(Node):
                 self.back_count += 1
             elif dy > DY_TH:
                 twist.linear.x = -VEL
+                self.back_count -= 1
             else:
                 if dep < DEPTH_MIN:
                     twist.linear.x = -VEL
+                    self.back_count -= 1
                 elif dep > DEPTH_MAX:
                     twist.linear.x = VEL
                     self.back_count += 1
