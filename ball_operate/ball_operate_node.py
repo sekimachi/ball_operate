@@ -24,7 +24,7 @@ class BallOperate(Node):
         # ===== Publisher =====
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel_ball', 10)
         self.capture_pub = self.create_publisher(Bool, 'ball_capture', 10)
-        self.led_pub = self.create_publisher(LedControl,'led_control',10)
+        self.led_pub = self.create_publisher(LedControl,'led_cmd',10)
         self.status_pub = self.create_publisher(Bool,'detect_ball_status',10)
 
         # ===== Subscriber =====
