@@ -16,6 +16,8 @@ DEPTH_MAX = 42.0
 VEL = 0.03
 FPS = 15
 
+BACK_COUNT_MAX = 10
+BACK_COUNT_MIN = 0
 
 class BallOperate(Node):
 
@@ -210,7 +212,6 @@ class BallOperate(Node):
             self.status = 0
             twist.linear.y = -(VEL + 0.15)
             self.cmd_pub.publish(twist)
-
             return
         
         self.status = 1
@@ -229,16 +230,23 @@ class BallOperate(Node):
             if dy < -DY_TH:
                 twist.linear.x = VEL
                 self.back_count += 1
+                self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
+
             elif dy > DY_TH:
                 twist.linear.x = -VEL
                 self.back_count -= 1
+                self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
+
             else:
                 if dep < DEPTH_MIN:
                     twist.linear.x = -VEL
                     self.back_count -= 1
+                    self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
+
                 elif dep > DEPTH_MAX:
                     twist.linear.x = VEL
                     self.back_count += 1
+                    self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
         # ===== 捕捉判定 =====
         if (-DX_TH <= dx <= DX_TH and
