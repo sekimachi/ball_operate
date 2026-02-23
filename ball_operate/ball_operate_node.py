@@ -225,7 +225,7 @@ class BallOperate(Node):
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
-                twist.linear.x = VEL
+                twist.linear.x = VEL +0.03
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
@@ -241,7 +241,7 @@ class BallOperate(Node):
                     self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
                 elif dep > DEPTH_MAX:
-                    twist.linear.x = VEL
+                    twist.linear.x = VEL+0.03
                     self.back_count += 1
                     self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
