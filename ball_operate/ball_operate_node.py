@@ -7,11 +7,13 @@ from imrc_messages.msg import BallInfo
 from imrc_messages.msg import LedControl
 from std_msgs.msg import String
 
-DX_TH = 10
-DY_TH = 10
+#14がマックス
+DX_TH = 12
+#28がマックス　０　５２
+DY_TH = 26
 
-DEPTH_MIN = 38
-DEPTH_MAX = 45.
+DEPTH_MIN = 43.0
+DEPTH_MAX = 49.0
 
 VEL = 0.03
 FPS = 15
@@ -26,9 +28,10 @@ class BallOperate(Node):
 
         # ===== Publisher =====
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel_ball', 10)
-        self.capture_pub = self.create_publisher(Bool, 'ball_capture', 10)
+        self.catch_pub = self.create_publisher(Bool, 'ball_catch', 10)
         self.led_pub = self.create_publisher(LedControl,'led_cmd',10)
         self.status_pub = self.create_publisher(Bool,'detect_ball_status',10)
+        self.capture_pub = self.create_publisher(Bool, 'ball_capture', 10)
 
         # ===== Subscriber =====
         self.create_subscription(BallInfo, 'ball_info', self.ball_cb, 10)
@@ -36,7 +39,7 @@ class BallOperate(Node):
         self.create_subscription(Bool,'ball_operate_enable',self.enable_cb,10)
         self.create_subscription(Bool, 'ball_force_capture', self.ball_force_capture_cb, 10)
         self.create_subscription(Bool, 'ball_force_stop', self.ball_force_stop_cb, 10)
-
+        self.create_subscription(Bool,"ball_back",self.ball_back_cb,10)
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
 
@@ -57,7 +60,7 @@ class BallOperate(Node):
         self.ball_color = msg.data
 
     # ===============================
-    #  ON / OFFにつかうコールバック
+    #  ON / OFFにつかう
     # ===============================
     def enable_cb(self, msg: Bool):
         self.enabled = msg.data
@@ -120,11 +123,13 @@ class BallOperate(Node):
         self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=250.0)
         self.led_pub.publish(self.msg_led)
 
-        self.capture_pub.publish(Bool(data=True))
+        self.catch_pub.publish(Bool(data=True))
         self.cmd_pub.publish(Twist())  # 完全停止
         self.get_logger().info("強制捕捉完了")
 
-
+    # ===============================
+    # 
+    # ==============================
     def LED_control(self,status):
         if status == 0:
             self.msg_led.led_brightness = 1.0   
@@ -152,6 +157,9 @@ class BallOperate(Node):
             
         self.led_pub.publish(self.msg_led)
 
+    def ball_back_cb(self,msg:Bool):
+        self.enabled = True
+        self.retreating = True
 
     # ===============================
     # 制御ループ
@@ -165,16 +173,6 @@ class BallOperate(Node):
             self.cmd_pub.publish(Twist())  # 常に0
             return
 
-        # ===== 停止フェーズ（6秒） =====
-        if self.stopping:
-            if self.stop_count > 0:
-                self.stop_count -= 1
-                self.cmd_pub.publish(Twist())  # 完全停止
-            else:
-                # 停止完了 → 後退開始
-                self.stopping = False
-                self.retreating = True
-            return
 
         # ===== 後退フェーズ =====
         if self.retreating:
@@ -191,11 +189,11 @@ class BallOperate(Node):
                 self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=250.0)
                 self.led_pub.publish(self.msg_led)
 
-                self.capture_pub.publish(Bool(data=True))
+                self.catch_pub.publish(Bool(data=True))
                 self.cmd_pub.publish(Twist())  # 完全停止
             return
 
-        #LEDの制御
+        # ==== LEDの制御 ====
         if self.status != self.his_status:
             self.his_status = self.status
             if self.status == 0:
@@ -210,7 +208,7 @@ class BallOperate(Node):
         # ===== 未検出 =====
         if self.last_msg is None or not self.last_msg.detected:
             self.status = 0
-            twist.linear.y = -(VEL + 0.15)
+            twist.linear.y = -(VEL + 0.16)
             self.cmd_pub.publish(twist)
             return
         
@@ -220,20 +218,20 @@ class BallOperate(Node):
         dep = self.last_msg.depth_cm
 
 
-        # ===== 通常追従 =====
+        # ===== 通常追従 ===== 0.03 * 13 *0.1  -で右　＋で左
         if dx < -DX_TH:
-            twist.linear.y = VEL
+            twist.linear.y = VEL *abs(dx) * 0.1
         elif dx > DX_TH:
-            twist.linear.y = -VEL
+            twist.linear.y = -VEL *abs(dx) * 0.1
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
-                twist.linear.x = VEL
+                twist.linear.x = VEL*abs(dy) * 0.1
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
             elif dy > DY_TH:
-                twist.linear.x = -VEL
+                twist.linear.x = -VEL*abs(dy) * 0.1
                 self.back_count -= 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
@@ -259,8 +257,10 @@ class BallOperate(Node):
             self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=1000.0)
             self.led_pub.publish(self.msg_led)
             
-            self.stopping = True
-            self.stop_count = FPS * 6   # 6秒
+
+            self.capture_pub.publish(Bool(data=True))
+            self.enabled = False
+
             return
 
 
