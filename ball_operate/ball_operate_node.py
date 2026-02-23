@@ -7,12 +7,13 @@ from imrc_messages.msg import BallInfo
 from imrc_messages.msg import LedControl
 from std_msgs.msg import String
 
+#14がマックス
+DX_TH = 12
+#28がマックス
+DY_TH = 26
 
-DX_TH = 10
-DY_TH = 10
-
-DEPTH_MIN = 38.0
-DEPTH_MAX = 42.0
+DEPTH_MIN = 41.0
+DEPTH_MAX = 46.0
 
 VEL = 0.03
 FPS = 15
