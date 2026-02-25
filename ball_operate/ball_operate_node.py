@@ -12,7 +12,7 @@ DX_TH = 12
 #28がマックス　０　５２
 DY_TH = 26
 
-DEPTH_MIN = 43.0
+DEPTH_MIN = 41.0
 DEPTH_MAX = 49.0
 
 VEL = 0.03
@@ -220,18 +220,18 @@ class BallOperate(Node):
 
         # ===== 通常追従 ===== 0.03 * 13 *0.1  -で右　＋で左
         if dx < -DX_TH:
-            twist.linear.y = VEL *abs(dx) * 0.1
+            twist.linear.y = VEL
         elif dx > DX_TH:
-            twist.linear.y = -VEL *abs(dx) * 0.1
+            twist.linear.y = -VEL
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
-                twist.linear.x = VEL*abs(dy) * 0.1
+                twist.linear.x = VEL
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
             elif dy > DY_TH:
-                twist.linear.x = -VEL*abs(dy) * 0.1
+                twist.linear.x = -VEL
                 self.back_count -= 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
