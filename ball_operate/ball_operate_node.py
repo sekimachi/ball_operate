@@ -8,14 +8,14 @@ from imrc_messages.msg import LedControl
 from std_msgs.msg import String
 
 #14がマックス
-DX_TH = 12
+DX_TH = 14
 #28がマックス
-DY_TH = 26
+DY_TH = 35
 
-DEPTH_MIN = 41.0
-DEPTH_MAX = 49.0
+DEPTH_MIN = 44.0
+DEPTH_MAX = 50.8
 
-VEL = 0.03
+VEL = 0.04
 FPS = 15
 
 BACK_COUNT_MAX = 10
