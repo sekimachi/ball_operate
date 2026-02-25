@@ -9,7 +9,7 @@ from std_msgs.msg import String
 
 #14がマックス
 DX_TH = 12
-#28がマックス　０　５２
+#28がマックス
 DY_TH = 26
 
 DEPTH_MIN = 41.0
