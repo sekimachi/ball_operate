@@ -220,10 +220,10 @@ class BallOperate(Node):
 
         # ===== 通常追従 ===== 
         if dx < -DX_TH:
-            twist.linear.y = max(min(0.001*abs(dx),0.2),0.01)
+            twist.linear.y = max(min(0.001*abs(dx),0.2),0.04)
 
         elif dx > DX_TH:
-            twist.linear.y = min(max(-0.001*abs(dx),-0.2),-0.01)
+            twist.linear.y = min(max(-0.001*abs(dx),-0.2),-0.04)
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
 
