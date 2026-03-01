@@ -10,10 +10,10 @@ from std_msgs.msg import String
 #14がマックス
 DX_TH = 12
 #28がマックス　０　５２
-DY_TH = 26
+DY_TH = 25
 
-DEPTH_MIN = 41.0
-DEPTH_MAX = 49.0
+DEPTH_MIN = 41.5
+DEPTH_MAX = 51.0
 
 VEL = 0.03
 FPS = 15
