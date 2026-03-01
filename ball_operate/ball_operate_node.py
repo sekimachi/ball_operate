@@ -18,7 +18,7 @@ DEPTH_MAX = 51.0
 VEL = 0.04
 FPS = 15
 
-BACK_COUNT_MAX = 10
+BACK_COUNT_MAX = 8
 BACK_COUNT_MIN = 0
 
 class BallOperate(Node):
