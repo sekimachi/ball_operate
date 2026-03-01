@@ -8,7 +8,7 @@ from imrc_messages.msg import LedControl
 from std_msgs.msg import String
 
 #14がマックス
-DX_TH = 11
+DX_TH = 10
 #28がマックス　０　５２
 DY_TH = 20
 
@@ -226,7 +226,6 @@ class BallOperate(Node):
             twist.linear.y = max(-0.001*abs(dx),-0.2)
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
-                # twist.linear.x = min(0.5, (VEL*(abs(dy) / 180)))
                 twist.linear.x = min(0.001*abs(dy),0.2)
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
