@@ -8,7 +8,7 @@ from imrc_messages.msg import LedControl
 from std_msgs.msg import String
 
 #14がマックス
-DX_TH = 10
+DX_TH = 8
 #28がマックス　０　５２
 DY_TH = 20
 
