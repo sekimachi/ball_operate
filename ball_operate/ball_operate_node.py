@@ -10,7 +10,7 @@ from std_msgs.msg import String
 #14がマックス
 DX_TH = 11
 #28がマックス　０　５２
-DY_TH = 21
+DY_TH = 20
 
 DEPTH_MIN = 41.5
 DEPTH_MAX = 51.0
@@ -220,23 +220,20 @@ class BallOperate(Node):
 
         # ===== 通常追従 ===== 
         if dx < -DX_TH:
-            # twist.linear.y = min(0.5,  (VEL*(abs(dx) / 180)))
-            twist.linear.y = VEL
+            twist.linear.y = min(0.001*abs(dx),0.2)
 
         elif dx > DX_TH:
-            # twist.linear.y = max(-0.5, (-VEL*(abs(dx) / 180)))
-            twist.linear.y = -VEL
-
+            twist.linear.y = max(-0.001*abs(dx),-0.2)
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
                 # twist.linear.x = min(0.5, (VEL*(abs(dy) / 180)))
-                twist.linear.x = VEL
+                twist.linear.x = min(0.001*abs(dy),0.2)
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
             elif dy > DY_TH:
                 # twist.linear.x = max(-0.5, -VEL*(abs(dy) / 180))
-                twist.linear.x = -VEL
+                twist.linear.x = max(-0.001*abs(dy),-0.2)
                 self.back_count -= 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
