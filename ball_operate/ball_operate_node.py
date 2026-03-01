@@ -15,7 +15,7 @@ DY_TH = 25
 DEPTH_MIN = 41.5
 DEPTH_MAX = 51.0
 
-VEL = 0.03
+VEL = 0.04
 FPS = 15
 
 BACK_COUNT_MAX = 10
@@ -218,20 +218,20 @@ class BallOperate(Node):
         dep = self.last_msg.depth_cm
 
 
-        # ===== 通常追従 ===== 0.03 * 13 *0.1  -で右　＋で左
+        # ===== 通常追従 ===== 
         if dx < -DX_TH:
-            twist.linear.y = VEL
+            twist.linear.y = VEL*abs(dx)*0.1
         elif dx > DX_TH:
-            twist.linear.y = -VEL
+            twist.linear.y = -VEL*abs(dx)*0.1
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
-                twist.linear.x = VEL
+                twist.linear.x = VEL*abs(dy)*0.1
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
             elif dy > DY_TH:
-                twist.linear.x = -VEL
+                twist.linear.x = -VEL*abs(dy)*0.1
                 self.back_count -= 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
