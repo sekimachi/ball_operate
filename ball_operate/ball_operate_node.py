@@ -220,20 +220,20 @@ class BallOperate(Node):
 
         # ===== 通常追従 ===== 
         if dx < -DX_TH:
-            
-            twist.linear.y = min(0.5,  VEL*abs(dx)*0.1)
+            twist.linear.y = min(0.5,  (VEL*(abs(dx) / 180)))
+            # twist.linear.y = min(0.5,  VEL*abs(dx)*0.1)
 
         elif dx > DX_TH:
-            twist.linear.y = max(-0.5, -VEL*abs(dx)*0.1)
+            twist.linear.y = max(-0.5, (-VEL*(abs(dx) / 180)))
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
-                twist.linear.x = min(0.5, VEL*abs(dy)*0.1)
+                twist.linear.x = min(0.5, (VEL*(abs(dy) / 180)))
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
             elif dy > DY_TH:
-                twist.linear.x = max(-0.5, -VEL*abs(dy)*0.1)
+                twist.linear.x = max(-0.5, -VEL*(abs(dy) / 180))
                 self.back_count -= 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
