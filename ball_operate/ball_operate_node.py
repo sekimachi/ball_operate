@@ -43,6 +43,8 @@ class BallOperate(Node):
         self.create_subscription(Bool, 'ball_force_capture', self.ball_force_capture_cb, 10)
         self.create_subscription(Bool, 'ball_force_stop', self.ball_force_stop_cb, 10)
         self.create_subscription(Bool,"ball_back",self.ball_back_cb,10)
+        self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
+        
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
 
@@ -58,6 +60,8 @@ class BallOperate(Node):
         self.his_status = 0
 
         self.msg_led = LedControl()
+
+
 
     def color_cb(self,msg:String):
         self.ball_color = msg.data
@@ -164,6 +168,10 @@ class BallOperate(Node):
         self.enabled = True
         self.retreating = True
 
+    def re_detect_cb(self,msg:Bool):
+        self.enabled = True
+        self.re_back = True
+
     # ===============================
     # 制御ループ
     # ===============================
@@ -178,6 +186,15 @@ class BallOperate(Node):
 
 
         # ===== 後退フェーズ =====
+        if self.re_back:
+            if self.back_count > 0:
+                twist.linear.x = -(VEL + 0.15)   
+                self.back_count -= 1
+                self.cmd_pub.publish(twist)
+            else:
+                self.re_back = False
+            return
+        
         if self.retreating:
             if self.back_count > 0:
                 twist.linear.x = -(VEL + 0.15)   # 後退
