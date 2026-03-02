@@ -8,7 +8,7 @@ from imrc_messages.msg import LedControl
 from std_msgs.msg import String
 
 #14がマックス8
-DX_TH = 3
+DX_TH = 5
 #28がマックス　０　５２
 DY_TH = 20
 
@@ -208,7 +208,7 @@ class BallOperate(Node):
         # ===== 未検出 =====
         if self.last_msg is None or not self.last_msg.detected:
             self.status = 0
-            twist.linear.y = -(VEL + 0.16)
+            twist.linear.y = -(0.5)
             self.cmd_pub.publish(twist)
             return
         
@@ -220,20 +220,20 @@ class BallOperate(Node):
 
         # ===== 通常追従 ===== 
         if dx < -DX_TH:
-            twist.linear.y = max(min(0.001*abs(dx),0.2),0.04)
+            twist.linear.y = max(min(0.002*abs(dx),0.5),0.04)
 
         elif dx > DX_TH:
-            twist.linear.y = min(max(-0.001*abs(dx),-0.2),-0.04)
+            twist.linear.y = min(max(-0.002*abs(dx),-0.5),-0.04)
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
 
-                twist.linear.x = min(0.001*abs(dy),0.2)
+                twist.linear.x = min(0.002*abs(dy),0.5)
                 self.back_count += 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
             elif dy > DY_TH:
                 # twist.linear.x = max(-0.5, -VEL*(abs(dy) / 180))
-                twist.linear.x = max(-0.001*abs(dy),-0.2)
+                twist.linear.x = max(-0.002*abs(dy),-0.5)
                 self.back_count -= 1
                 self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
