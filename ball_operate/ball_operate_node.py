@@ -109,9 +109,8 @@ class BallOperate(Node):
         self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=250.0)
         self.led_pub.publish(self.msg_led)
 
-        msg = Bool()
-        msg.data = False
-        self.status_pub.publish(msg)
+
+        self.status_pub.publish(Bool(data=False))
 
         self.cmd_pub.publish(Twist())  # 完全停止
 
@@ -170,7 +169,7 @@ class BallOperate(Node):
 
     def re_detect_cb(self,msg:Bool):
         self.enabled = True
-        self.re_back = True
+        self.re_serch = True
 
     # ===============================
     # 制御ループ
@@ -184,6 +183,18 @@ class BallOperate(Node):
             self.cmd_pub.publish(Twist())  # 常に0
             return
 
+        if self.re_serch:
+            if (-DX_TH <= dx <= DX_TH and
+                -DY_TH <= dy <= DY_TH and
+                DEPTH_MIN <= dep <= DEPTH_MAX
+            ):
+                self.re_serch = False
+                self.re_back = True
+            else:
+                self.enabled = False
+                self.status_pub.publish(Bool(data=False))
+            return
+                
 
         # ===== re後退フェーズ =====
         if self.re_back:
