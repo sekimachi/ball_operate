@@ -7,8 +7,8 @@ from imrc_messages.msg import BallInfo
 from imrc_messages.msg import LedControl
 from std_msgs.msg import String
 
-#14がマックス
-DX_TH = 8
+#14がマックス8
+DX_TH = 3
 #28がマックス　０　５２
 DY_TH = 20
 
