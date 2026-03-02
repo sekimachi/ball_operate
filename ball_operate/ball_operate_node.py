@@ -185,7 +185,7 @@ class BallOperate(Node):
             return
 
 
-        # ===== 後退フェーズ =====
+        # ===== re後退フェーズ =====
         if self.re_back:
             if self.back_count > 0:
                 twist.linear.x = -(VEL + 0.15)   
@@ -194,7 +194,8 @@ class BallOperate(Node):
             else:
                 self.re_back = False
             return
-        
+
+        # ===== 後退フェーズ =====
         if self.retreating:
             if self.back_count > 0:
                 twist.linear.x = -(VEL + 0.15)   # 後退
