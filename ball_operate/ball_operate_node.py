@@ -52,6 +52,9 @@ class BallOperate(Node):
         self.enabled = False# アクション実行中か
         self.last_msg = None
 
+        self.re_serch = False
+        self.re_back = False
+
         self.back_count = 0
         self.retreating = False
         self.stopping = False
@@ -183,18 +186,7 @@ class BallOperate(Node):
             self.cmd_pub.publish(Twist())  # 常に0
             return
 
-        if self.re_serch:
-            if (-DX_TH <= dx <= DX_TH and
-                -DY_TH <= dy <= DY_TH and
-                DEPTH_MIN <= dep <= DEPTH_MAX
-            ):
-                self.re_serch = False
-                self.re_back = True
-            else:
-                self.enabled = False
-                self.status_pub.publish(Bool(data=False))
-            return
-                
+
 
         # ===== re後退フェーズ =====
         if self.re_back:
@@ -249,6 +241,19 @@ class BallOperate(Node):
         dy = self.last_msg.dy
         dep = self.last_msg.depth_cm
 
+        # ==== 落ちたか落ちてないか判定 ====
+        if self.re_serch:
+            if (-DX_TH <= dx <= DX_TH and
+                -DY_TH <= dy <= DY_TH and
+                DEPTH_MIN <= dep <= DEPTH_MAX
+            ):
+                self.re_serch = False
+                self.re_back = True
+            else:
+                self.enabled = False
+                self.status_pub.publish(Bool(data=False))
+            return
+                
 
         # ===== 通常追従 ===== 
 
