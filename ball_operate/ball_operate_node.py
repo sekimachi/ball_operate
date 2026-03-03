@@ -11,7 +11,7 @@ from std_msgs.msg import String
 K = 0.6 / (300 ** 2)
 
 #14がマックス8
-DX_TH = 5
+DX_TH = 4
 #28がマックス　０　５２
 DY_TH = 20
 
