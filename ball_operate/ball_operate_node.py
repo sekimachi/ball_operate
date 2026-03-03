@@ -16,7 +16,7 @@ DX_TH = 5
 DY_TH = 20
 
 DEPTH_MIN = 41.5
-DEPTH_MAX = 51.0
+DEPTH_MAX = 48.5
 
 VEL = 0.04
 FPS = 15
@@ -253,9 +253,9 @@ class BallOperate(Node):
         # ===== 通常追従 ===== 
 
         if dx < -DX_TH:
-            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.04)
+            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.01)
         elif dx > DX_TH:
-            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.04)
+            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.01)
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
