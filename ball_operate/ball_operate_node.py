@@ -26,6 +26,9 @@ FPS = 15
 BACK_COUNT_MAX = 14
 BACK_COUNT_MIN = 0
 
+WALL_SLOW_START = 2.5
+STOP_DISTANCE = 0.6
+
 class BallOperate(Node):
 
     def __init__(self):
@@ -250,26 +253,26 @@ class BallOperate(Node):
             else:
                 twist.linear.y = 0.5
 
-            # ===== 右壁のやつ =====
+            # ===== 右壁 =====
             if self.reverse_operating == False:
-                if self.right_distance <= 1.5:
+                if self.right_distance <= WALL_SLOW_START:
                     twist.linear.y = -max(0.0, 0.5 * (self.right_distance - 0.5)**2)
 
                     # 停止したら方向反転
-                    if self.right_distance <= 0.53:
+                    if self.right_distance <= STOP_DISTANCE:
                         self.reverse_operating = True
 
-            # ===== 左壁noyatu =====
+            # ===== 左壁 =====
             if self.reverse_operating == True:
-                if self.left_distance <= 1.5:
+                if self.left_distance <= WALL_SLOW_START:
                     twist.linear.y = max(0.0, 0.5 * (self.left_distance - 0.5)**2)
 
                     # 停止したら方向反転
-                    if self.left_distance <= 0.53:
+                    if self.left_distance <= STOP_DISTANCE:
                         self.reverse_operating = False
 
-            self.cmd_pub.publish(twist)
-            return
+                    self.cmd_pub.publish(twist)
+                    return
         
         self.status = 1
         dx = self.last_msg.dx
