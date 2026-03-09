@@ -199,6 +199,19 @@ class BallOperate(Node):
             return
 
 
+        # ==== 落ちたか落ちてないか判定 ====
+        if self.re_serch:
+            if (-DX_TH <= dx <= DX_TH and
+                -DY_TH <= dy <= DY_TH and
+                DEPTH_MIN <= dep <= DEPTH_MAX
+            ):
+                self.re_serch = False
+                self.re_back = True
+            else:
+                self.enabled = False
+                self.status_pub.publish(Bool(data=False))
+            return
+
 
         # ===== re後退フェーズ =====
         if self.re_back:
@@ -255,6 +268,7 @@ class BallOperate(Node):
                 if self.right_distance <= 0.7:
                     twist.linear.y = -max(0.0, min(0.5, 0.5 * (self.right_distance - 0.4)))
 
+
                     # 停止したら方向反転
                     if self.right_distance <= 0.4:
                         self.reverse_operating = True
@@ -275,20 +289,6 @@ class BallOperate(Node):
         dx = self.last_msg.dx
         dy = self.last_msg.dy
         dep = self.last_msg.depth_cm
-
-        # ==== 落ちたか落ちてないか判定 ====
-        if self.re_serch:
-            if (-DX_TH <= dx <= DX_TH and
-                -DY_TH <= dy <= DY_TH and
-                DEPTH_MIN <= dep <= DEPTH_MAX
-            ):
-                self.re_serch = False
-                self.re_back = True
-            else:
-                self.enabled = False
-                self.status_pub.publish(Bool(data=False))
-            return
-                
 
         # ===== 通常追従 ===== 
 
