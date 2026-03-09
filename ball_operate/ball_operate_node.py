@@ -252,8 +252,8 @@ class BallOperate(Node):
 
             # ===== 右壁のやつ =====
             if self.reverse_operating == False:
-                if self.right_distance <= 3.5:
-                    twist.linear.y = -max(0.0, 0.5 * (self.right_distance - 0.5)**2)
+                if self.right_distance <= 2.5:
+                    twist.linear.y = -max(0.0, min(0.5, 0.25 * (self.right_distance - 0.5)))
 
                     # 停止したら方向反転
                     if self.right_distance <= 0.6:
@@ -261,8 +261,8 @@ class BallOperate(Node):
 
             # ===== 左壁noyatu =====
             if self.reverse_operating == True:
-                if self.left_distance <= 3.5:
-                    twist.linear.y = max(0.0, 0.5 * (self.left_distance - 0.5)**2)
+                if self.left_distance <= 2.5:
+                    twist.linear.y = max(0.0, min(0.5, 0.25 * (self.left_distance - 0.5)))
 
                     # 停止したら方向反転
                     if self.left_distance <= 0.6:
