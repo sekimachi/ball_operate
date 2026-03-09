@@ -46,7 +46,7 @@ class BallOperate(Node):
         self.create_subscription(Bool, 'ball_force_stop', self.ball_force_stop_cb, 10)
         self.create_subscription(Bool,"ball_back",self.ball_back_cb,10)
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
-        self.create_subscription(WallInfo,"wall_filtered",self.wall_filtered_cb,10)
+        self.create_subscription(WallInfo,"wall_raw",self.wall_filtered_cb,10)
         
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
@@ -249,10 +249,10 @@ class BallOperate(Node):
             elif self.reverse_operating == True:
                 twist.linear.y = (0.5)
 
-            if self.right_distance < 0.1:
+            if self.right_distance <= 0.1:
                 self.reverse_operating = True
 
-            if self.left_distance < 0.1:
+            elif self.left_distance <= 0.1:
                 self.reverse_operating = False
 
             self.cmd_pub.publish(twist)
