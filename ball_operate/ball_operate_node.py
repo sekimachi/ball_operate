@@ -249,10 +249,10 @@ class BallOperate(Node):
             elif self.reverse_operating == True:
                 twist.linear.y = (0.5)
 
-            if self.right_distance <= 0.1:
+            if self.right_distance <= 0.36:
                 self.reverse_operating = True
 
-            elif self.left_distance <= 0.1:
+            elif self.left_distance <= 0.36:
                 self.reverse_operating = False
 
             self.cmd_pub.publish(twist)
