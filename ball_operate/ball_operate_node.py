@@ -199,6 +199,10 @@ class BallOperate(Node):
             return
 
 
+        dx = self.last_msg.dx
+        dy = self.last_msg.dy
+        dep = self.last_msg.depth_cm
+
         # ==== 落ちたか落ちてないか判定 ====
         if self.re_serch:
             if (-DX_TH <= dx <= DX_TH and
@@ -286,9 +290,7 @@ class BallOperate(Node):
             return
         
         self.status = 1
-        dx = self.last_msg.dx
-        dy = self.last_msg.dy
-        dep = self.last_msg.depth_cm
+  
 
         # ===== 通常追従 ===== 
 
