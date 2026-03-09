@@ -77,6 +77,7 @@ class BallOperate(Node):
         self.left_distance = msg.left_distance
 
 
+
     def color_cb(self,msg:String):
         self.ball_color = msg.data
 
@@ -244,6 +245,16 @@ class BallOperate(Node):
         if self.last_msg is None or not self.last_msg.detected:
             self.status = 0
 
+<<<<<<< HEAD
+            if self.right_distance <= 0.5:
+                self.reverse_operating = True
+                self.get_logger().info("みぎ０．５以下")
+
+            if self.left_distance <= 0.5:
+                self.reverse_operating = False
+
+=======
+>>>>>>> origin/HEAD
             if self.reverse_operating == False:
                 twist.linear.y = -0.5
             else:
@@ -263,10 +274,13 @@ class BallOperate(Node):
                 if self.left_distance <= 1.5:
                     twist.linear.y = max(0.0, 0.5 * (self.left_distance - 0.5)**2)
 
+<<<<<<< HEAD
+=======
                     # 停止したら方向反転
                     if self.left_distance <= 0.53:
                         self.reverse_operating = False
 
+>>>>>>> origin/HEAD
             self.cmd_pub.publish(twist)
             return
         
