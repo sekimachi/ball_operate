@@ -5,7 +5,9 @@ from std_msgs.msg import Bool
 from geometry_msgs.msg import Twist
 from imrc_messages.msg import BallInfo
 from imrc_messages.msg import LedControl
+from imrc_messages.msg import WallInfo
 from std_msgs.msg import String
+
 
 # 係数: 0.6 / 300^2 = 6.67e-6
 K = 0.6 / (300 ** 2)
@@ -44,7 +46,7 @@ class BallOperate(Node):
         self.create_subscription(Bool, 'ball_force_stop', self.ball_force_stop_cb, 10)
         self.create_subscription(Bool,"ball_back",self.ball_back_cb,10)
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
-        self.create_subscription(Bool,"wall_filtered",self.wall_filtered_cb,10)
+        self.create_subscription(WallInfo,"wall_filtered",self.wall_filtered_cb,10)
         
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
@@ -70,7 +72,7 @@ class BallOperate(Node):
     # ============================
     # 壁までの情報たちをうけるべ
     # ================================
-    def wall_filtered_cb(self, msg: Bool):
+    def wall_filtered_cb(self, msg: WallInfo):
         self.right_distance = msg.right_distance
         self.left_distance = msg.left_distance
 
