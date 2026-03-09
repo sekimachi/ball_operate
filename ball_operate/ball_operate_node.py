@@ -21,7 +21,11 @@ DEPTH_MAX = 48.5
 VEL = 0.04
 FPS = 15
 
+<<<<<<< HEAD
 BACK_COUNT_MAX = 13
+=======
+BACK_COUNT_MAX = 14
+>>>>>>> 4c915aaedcba17e3e234bd926c4edab0d3d326e8
 BACK_COUNT_MIN = 0
 
 class BallOperate(Node):
@@ -44,6 +48,7 @@ class BallOperate(Node):
         self.create_subscription(Bool, 'ball_force_stop', self.ball_force_stop_cb, 10)
         self.create_subscription(Bool,"ball_back",self.ball_back_cb,10)
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
+        self.create_subscription(Bool,"wall_filtered",self.wall_filtered_cb,10)
         
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
@@ -62,8 +67,16 @@ class BallOperate(Node):
         self.status = 0 # 0:未検出　1:通常追従, 2:ボール捕獲
         self.his_status = 0
 
+        self.reverse_operating = False
+
         self.msg_led = LedControl()
 
+    # ============================
+    # 壁までの情報たちをうけるべ
+    # ================================
+    def wall_filtered_cb(self, msg: Bool):
+        self.right_distance = msg.right_distance
+        self.left_distance = msg.left_distance
 
 
     def color_cb(self,msg:String):
@@ -232,7 +245,18 @@ class BallOperate(Node):
         # ===== 未検出 =====
         if self.last_msg is None or not self.last_msg.detected:
             self.status = 0
-            twist.linear.y = -(0.5)
+            if self.reverse_operating == False:
+                twist.linear.y = -(0.5)
+
+            elif self.reverse_operating == True:
+                twist.linear.y = (0.5)
+
+            if self.right_distance < 0.1:
+                self.reverse_operating = True
+
+            if self.left_distance < 0.1:
+                self.reverse_operating = False
+
             self.cmd_pub.publish(twist)
             return
         
