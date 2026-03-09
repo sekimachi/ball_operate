@@ -258,7 +258,7 @@ class BallOperate(Node):
                     if self.right_distance <= 0.53:
                         self.reverse_operating = True
 
-            # ===== 左壁 =====
+            # ===== 左壁noyatu =====
             if self.reverse_operating == True:
                 if self.left_distance <= 1.5:
                     twist.linear.y = max(0.0, 0.5 * (self.left_distance - 0.5)**2)
