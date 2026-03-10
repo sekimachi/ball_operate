@@ -212,6 +212,7 @@ class BallOperate(Node):
                 self.re_serch = False
                 self.re_back = True
             else:
+                self.re_serch = False
                 self.enabled = False
                 self.status_pub.publish(Bool(data=False))
             return
