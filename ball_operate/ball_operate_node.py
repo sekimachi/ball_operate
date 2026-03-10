@@ -296,10 +296,10 @@ class BallOperate(Node):
                 twist.linear.y = 0.5
 
             # ===== 壁追従 PD制御 =====
-            self.wall_target = 0.4
+            self.wall_target = 0.3
 
             self.kp_wall = 1.6
-            self.kd_wall = 0.2
+            self.kd_wall = 0.15
 
             self.prev_error_r = 0.0
             self.prev_error_l = 0.0
