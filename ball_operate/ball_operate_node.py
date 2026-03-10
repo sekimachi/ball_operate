@@ -294,14 +294,27 @@ class BallOperate(Node):
             else:
                 twist.linear.y = 0.5
 
+            # ===== 壁追従 PD制御 =====
+            self.wall_target = 0.4
+
+            self.kp_wall = 1.6
+            self.kd_wall = 0.35
+
+            self.prev_error_r = 0.0
+            self.prev_error_l = 0.0
+
             # ===== 右壁のやつ =====
             if self.reverse_operating == False:
                 if self.right_distance <= 0.7:
-                    twist.linear.y = -max(0.0, min(0.5, 0.5 * (self.right_distance - 0.4)))
-
+                    
+                    error = self.right_distance - self.wall_target
+                    d_error = (error - self.prev_error_r) * FPS
+                    u = self.kp_wall * error + self.kd_wall * d_error
+                    twist.linear.y = -max(-0.5, min(0.5, u))
+                    self.prev_error_r = error
 
                     # 停止したら方向反転
-                    if self.right_distance <= 0.4:
+                    if self.right_distance <= 0.35:
                         self.reverse_operating = True
                         
                         self.enabled = False
@@ -319,10 +332,15 @@ class BallOperate(Node):
             # ===== 左壁noyatu =====
             if self.reverse_operating == True:
                 if self.left_distance <= 0.7:
-                    twist.linear.y = max(0.0, min(0.5, 0.5 * (self.left_distance - 0.4)))
+
+                    error = self.left_distance - self.wall_target
+                    d_error = (error - self.prev_error_l) * FPS
+                    u = self.kp_wall * error + self.kd_wall * d_error
+                    twist.linear.y = max(-0.5, min(0.5, u))
+                    self.prev_error_l = error
 
                     # 停止したら方向反転
-                    if self.left_distance <= 0.4:
+                    if self.left_distance <= 0.35:
                         self.reverse_operating = False
 
                         self.enabled = False
