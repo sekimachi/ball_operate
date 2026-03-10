@@ -294,7 +294,7 @@ class BallOperate(Node):
             else:
                 twist.linear.y = 0.5
 
-            # ===== 壁追従 PD制御 =====
+            # ===== 壁 PD制御 =====
             self.wall_target = 0.4
 
             self.kp_wall = 1.6
@@ -370,6 +370,13 @@ class BallOperate(Node):
   
 
         # ===== 通常追従 ===== 
+        if self.reverse_operating == False:
+            if self.right_distance <= 0.35:
+                self.reverse_operating = True
+        if self.reverse_operating == True:
+            if self.left_distance <= 0.35:
+                self.reverse_operating = False
+
 
         if dx < -DX_TH:
             twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.01)
