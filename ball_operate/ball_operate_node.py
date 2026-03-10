@@ -204,6 +204,7 @@ class BallOperate(Node):
     def adjustment_result_callback(self, future):
         self.adjusting = False
         self.enabled = True
+        self.get_logger().info("傾き調整完了")
 
     # ===============================
     # cmd_vel_tilt_adjustmentをcmd_vel_ballに変換するコールバックだ
@@ -294,11 +295,11 @@ class BallOperate(Node):
             else:
                 twist.linear.y = 0.5
 
-            # ===== 壁 PD制御 =====
-            self.wall_target = 0.4
+            # ===== 壁追従 PD制御 =====
+            self.wall_target = 0.3
 
             self.kp_wall = 1.6
-            self.kd_wall = 0.35
+            self.kd_wall = 0.15
 
             self.prev_error_r = 0.0
             self.prev_error_l = 0.0
