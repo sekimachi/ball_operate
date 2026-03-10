@@ -320,9 +320,14 @@ class BallOperate(Node):
                         self.enabled = False
                         self.adjusting = True
 
+                        #direction_x: 'B', distance_x: 0.45, direction_y: 'R', distance_y: 0.37, angle_direction: 'B',angle: 0.0
                         goal_msg = TiltAdjustment.Goal()
-                        goal_msg.target_distance = 0.3
-                        goal_msg.target_angle = 0
+                        goal_msg.direction_x = 'B'
+                        goal_msg.distance_x = 0.45
+                        goal_msg.direction_y = 'R'
+                        goal_msg.distance_y = 0.37
+                        goal_msg.angle_direction = 'B'
+                        goal_msg.angle = 0.0
         
                         self.adjustment_client.wait_for_server()
 
@@ -345,10 +350,13 @@ class BallOperate(Node):
 
                         self.enabled = False
                         self.adjusting = True
-
+                        
+                        #direction_y: 'L', distance_y: 0.30, angle_direction: 'L',angle: 0.0
                         goal_msg = TiltAdjustment.Goal()
-                        goal_msg.target_distance = 0.3
-                        goal_msg.target_angle = 0
+                        goal_msg.direction_y = 'L'
+                        goal_msg.distance_y = 0.30
+                        goal_msg.angle_direction = 'L'
+                        goal_msg.angle = 0.0
         
                         self.adjustment_client.wait_for_server()
 
