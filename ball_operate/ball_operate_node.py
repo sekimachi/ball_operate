@@ -7,7 +7,8 @@ from imrc_messages.msg import BallInfo
 from imrc_messages.msg import LedControl
 from imrc_messages.msg import WallInfo
 from std_msgs.msg import String
-
+from imrc_messages.action import TiltAdjustment
+from rclpy.action import ActionClient
 
 # 係数: 0.6 / 300^2 = 6.67e-6
 K = 0.6 / (300 ** 2)
@@ -47,7 +48,11 @@ class BallOperate(Node):
         self.create_subscription(Bool,"ball_back",self.ball_back_cb,10)
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
         self.create_subscription(WallInfo,"wall_raw",self.wall_filtered_cb,10)
-        
+        self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
+
+        # ===== Action Server =====
+        self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
+
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
 
@@ -66,6 +71,7 @@ class BallOperate(Node):
         self.his_status = 0
 
         self.reverse_operating = False
+        self.adjusting = False
 
         self.msg_led = LedControl()
 
@@ -187,6 +193,26 @@ class BallOperate(Node):
         self.re_serch = True
 
     # ===============================
+    # Actionの結果を受け取るコールバックだとおもう
+    # ===============================
+    def adjustment_response_callback(self, future):
+        goal_handle = future.result()
+        
+        get_result_future = goal_handle.get_result_async()
+        get_result_future.add_done_callback(self.adjustment_result_callback)
+
+    def adjustment_result_callback(self, future):
+        self.adjusting = False
+        self.enabled = True
+
+    # ===============================
+    # cmd_vel_tilt_adjustmentをcmd_vel_ballに変換するコールバックだ
+    # ===============================
+    def tilt_adjustment_cb(self, msg: Twist):
+        if self.adjusting:
+            self.cmd_pub.publish(msg)
+
+    # ===============================
     # 制御ループ
     # ===============================
     def timer_cb(self):
@@ -277,6 +303,18 @@ class BallOperate(Node):
                     # 停止したら方向反転
                     if self.right_distance <= 0.4:
                         self.reverse_operating = True
+                        
+                        self.enabled = False
+                        self.adjusting = True
+
+                        goal_msg = TiltAdjustment.Goal()
+                        goal_msg.target_distance = 0.3
+                        goal_msg.target_angle = 0
+        
+                        self.adjustment_client.wait_for_server()
+
+                        future = self.adjustment_client.send_goal_async(goal_msg)
+                        future.add_done_callback(self.adjustment_response_callback)
 
             # ===== 左壁noyatu =====
             if self.reverse_operating == True:
@@ -287,6 +325,18 @@ class BallOperate(Node):
                     if self.left_distance <= 0.4:
                         self.reverse_operating = False
 
+                        self.enabled = False
+                        self.adjusting = True
+
+                        goal_msg = TiltAdjustment.Goal()
+                        goal_msg.target_distance = 0.3
+                        goal_msg.target_angle = 0
+        
+                        self.adjustment_client.wait_for_server()
+
+                        future = self.adjustment_client.send_goal_async(goal_msg)
+                        future.add_done_callback(self.adjustment_response_callback)
+                        
             self.cmd_pub.publish(twist)
             return
         
@@ -296,9 +346,9 @@ class BallOperate(Node):
         # ===== 通常追従 ===== 
 
         if dx < -DX_TH:
-            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.03)
+            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.01)
         elif dx > DX_TH:
-            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.03)
+            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.01)
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
