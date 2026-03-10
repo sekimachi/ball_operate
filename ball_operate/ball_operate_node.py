@@ -204,6 +204,7 @@ class BallOperate(Node):
     def adjustment_result_callback(self, future):
         self.adjusting = False
         self.enabled = True
+        self.get_logger().info("傾き調整完了")
 
     # ===============================
     # cmd_vel_tilt_adjustmentをcmd_vel_ballに変換するコールバックだ
@@ -298,7 +299,7 @@ class BallOperate(Node):
             self.wall_target = 0.4
 
             self.kp_wall = 1.6
-            self.kd_wall = 0.35
+            self.kd_wall = 0.2
 
             self.prev_error_r = 0.0
             self.prev_error_l = 0.0
@@ -322,7 +323,7 @@ class BallOperate(Node):
 
                         goal_msg = TiltAdjustment.Goal()
                         goal_msg.target_distance = 0.3
-                        goal_msg.target_angle = 0
+                        goal_msg.target_angle = 0.0
         
                         self.adjustment_client.wait_for_server()
 
@@ -348,7 +349,7 @@ class BallOperate(Node):
 
                         goal_msg = TiltAdjustment.Goal()
                         goal_msg.target_distance = 0.3
-                        goal_msg.target_angle = 0
+                        goal_msg.target_angle = 0.0
         
                         self.adjustment_client.wait_for_server()
 
