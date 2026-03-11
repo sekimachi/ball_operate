@@ -232,9 +232,9 @@ class BallOperate(Node):
 
         # ==== 落ちたか落ちてないか判定 ====
         if self.re_serch:
-            if (-DX_TH <= dx <= DX_TH and
-                -DY_TH <= dy <= DY_TH and
-                DEPTH_MIN <= dep <= DEPTH_MAX
+            if (-(DX_TH + 5) <= dx <= (DX_TH + 5) and
+                -(DY_TH + 8) <= dy <= (DY_TH + 8) and
+                DEPTH_MIN - 1 <= dep <= DEPTH_MAX + 1
             ):
                 self.re_serch = False
                 self.re_back = True
