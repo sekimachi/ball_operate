@@ -421,7 +421,13 @@ class BallOperate(Node):
 
             self.capture_pub.publish(Bool(data=True))
             self.enabled = False
-
+            return
+        elif (self.right_distance <= 0.35 and
+              -(DX_TH) <= dx <= (DX_TH + 5) and
+              -DY_TH <= dy <= DY_TH and
+              DEPTH_MIN <= dep <= DEPTH_MAX
+              ):
+        
             return
 
 
