@@ -222,7 +222,8 @@ class BallOperate(Node):
 
         # ===== Action が来ていない or 終了後 =====
         if not self.enabled:
-            self.cmd_pub.publish(Twist())  # 常に0
+            if self.adjusting == False:
+                self.cmd_pub.publish(Twist())  # 常に0
             return
 
 
