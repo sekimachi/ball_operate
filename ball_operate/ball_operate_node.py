@@ -380,9 +380,9 @@ class BallOperate(Node):
 
 
         if dx < -DX_TH:
-            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.01)
+            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.03)
         elif dx > DX_TH:
-            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.01)
+            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.03)
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
