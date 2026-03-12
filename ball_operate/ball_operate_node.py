@@ -422,15 +422,38 @@ class BallOperate(Node):
             self.capture_pub.publish(Bool(data=True))
             self.enabled = False
             return
+        
         elif (self.right_distance <= 0.35 and
               -(DX_TH) <= dx <= (DX_TH + 5) and
               -DY_TH <= dy <= DY_TH and
               DEPTH_MIN <= dep <= DEPTH_MAX
               ):
-        
+            self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
+            
+            
+            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=1000.0)
+            self.led_pub.publish(self.msg_led)
+            
+
+            self.capture_pub.publish(Bool(data=True))
+            self.enabled = False
             return
 
+        elif (self.left_distance <= 0.35 and
+              -(DX_TH) <= dx <= (DX_TH + 5) and
+              -DY_TH <= dy <= DY_TH and
+              DEPTH_MIN <= dep <= DEPTH_MAX
+              ):
+            self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
+            
+            
+            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=1000.0)
+            self.led_pub.publish(self.msg_led)
+            
 
+            self.capture_pub.publish(Bool(data=True))
+            self.enabled = False
+            return
 
         self.cmd_pub.publish(twist)
 
