@@ -222,7 +222,8 @@ class BallOperate(Node):
 
         # ===== Action が来ていない or 終了後 =====
         if not self.enabled:
-            self.cmd_pub.publish(Twist())  # 常に0
+            if self.adjusting == False:
+                self.cmd_pub.publish(Twist())  # 常に0
             return
 
 
@@ -380,9 +381,9 @@ class BallOperate(Node):
 
 
         if dx < -DX_TH:
-            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.01)
+            twist.linear.y = max(min(K * abs(dx)**2, 0.6), 0.03)
         elif dx > DX_TH:
-            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.01)
+            twist.linear.y = min(max(-K * abs(dx)**2, -0.6), -0.03)
 
         if -DX_TH <= dx <= DX_TH:
             if dy < -DY_TH:
