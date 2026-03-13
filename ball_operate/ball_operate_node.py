@@ -444,7 +444,7 @@ class BallOperate(Node):
             DEPTH_MIN <= dep <= DEPTH_MAX
         ):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
-            
+            self.cmd_pub.publish(Twist()) #停止
             
             self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=10.0)
             self.led_pub.publish(self.msg_led)
@@ -460,7 +460,7 @@ class BallOperate(Node):
               DEPTH_MIN <= dep <= DEPTH_MAX
               ):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
-            
+            self.cmd_pub.publish(Twist()) #停止
             
             self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=10.0)
             self.led_pub.publish(self.msg_led)
@@ -476,7 +476,7 @@ class BallOperate(Node):
               DEPTH_MIN <= dep <= DEPTH_MAX
               ):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
-            
+            self.cmd_pub.publish(Twist()) #停止
             
             self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=10.0)
             self.led_pub.publish(self.msg_led)
