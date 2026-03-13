@@ -435,7 +435,7 @@ class BallOperate(Node):
 
                 elif dep > DEPTH_MAX:
                     twist.linear.x = VEL
-.                    self.back_count += 1
+                    self.back_count += 1
                     self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
         # ===== 捕捉判定 =====
