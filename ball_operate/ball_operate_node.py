@@ -260,7 +260,7 @@ class BallOperate(Node):
 
         # ==== 落ちたか落ちてないか判定 ====
         if self.re_serch:
-            if (-(DX_TH + 5) <= dx <= (DX_TH + 5) and
+            if (-(DX_TH + 10) <= dx <= (DX_TH + 10) and
                 -(DY_TH + 8) <= dy <= (DY_TH + 8) and
                 DEPTH_MIN - 1 <= dep <= DEPTH_MAX + 1
             ):
@@ -452,7 +452,7 @@ class BallOperate(Node):
             return
         
         elif (self.right_distance <= 0.35 and
-              -(DX_TH) <= dx <= (DX_TH + 5) and
+              -(DX_TH) <= dx <= (DX_TH + 10) and
               -DY_TH <= dy <= DY_TH and
               DEPTH_MIN <= dep <= DEPTH_MAX
               ):
@@ -468,7 +468,7 @@ class BallOperate(Node):
             return
 
         elif (self.left_distance <= 0.35 and
-              -(DX_TH) <= dx <= (DX_TH + 5) and
+              -(DX_TH) <= dx <= (DX_TH + 10) and
               -DY_TH <= dy <= DY_TH and
               DEPTH_MIN <= dep <= DEPTH_MAX
               ):
