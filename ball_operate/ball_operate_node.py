@@ -86,6 +86,16 @@ class BallOperate(Node):
         self.reverse_operating = False
         self.adjusting = False
 
+
+        # ===== 壁追従 PD制御 =====
+        self.wall_target = 0.4
+
+        self.kp_wall = 1.5
+        self.kd_wall = 0.2
+
+        self.prev_error_r = 0.0
+        self.prev_error_l = 0.0
+
         self.msg_led = LedControl()
 
     # ============================
@@ -323,14 +333,7 @@ class BallOperate(Node):
             else:
                 twist.linear.y = 0.5
 
-            # ===== 壁追従 PD制御 =====
-            self.wall_target = 0.4
 
-            self.kp_wall = 1.5
-            self.kd_wall = 0.2
-
-            self.prev_error_r = 0.0
-            self.prev_error_l = 0.0
 
             # ===== 右壁のやつ =====
             if self.reverse_operating == False:
