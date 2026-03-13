@@ -454,7 +454,7 @@ class BallOperate(Node):
             self.enabled = False
             return
         
-        elif (self.right_distance <= 0.35 and
+        elif (self.right_distance <= 0.4 and
               -(DX_TH) <= dx <= (DX_TH + 10) and
               -DY_TH <= dy <= DY_TH and
               DEPTH_MIN <= dep <= DEPTH_MAX
@@ -470,7 +470,7 @@ class BallOperate(Node):
             self.enabled = False
             return
 
-        elif (self.left_distance <= 0.35 and
+        elif (self.left_distance <= 0.4 and
               -(DX_TH) <= dx <= (DX_TH + 10) and
               -DY_TH <= dy <= DY_TH and
               DEPTH_MIN <= dep <= DEPTH_MAX
