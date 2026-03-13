@@ -39,7 +39,7 @@ class BallOperate(Node):
 
         #= cv_bridgeの初期化と画像保存用のディレクトリ作成 =
         self.bridge = CvBridge()
-        self.image_save_dir = os.path.join(os.path.expanduser('~'), 'haru_ws', 'images')
+        self.image_save_dir = os.path.join(os.path.expanduser('~'), 'images')
         os.makedirs(self.image_save_dir, exist_ok=True)
         self.image_counter = 0
 
@@ -435,7 +435,7 @@ class BallOperate(Node):
 
                 elif dep > DEPTH_MAX:
                     twist.linear.x = VEL
-                    self.back_count += 1
+.                    self.back_count += 1
                     self.back_count = max(BACK_COUNT_MIN, min(self.back_count, BACK_COUNT_MAX))
 
         # ===== 捕捉判定 =====
