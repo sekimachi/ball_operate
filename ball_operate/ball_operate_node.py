@@ -10,6 +10,11 @@ from std_msgs.msg import String
 from imrc_messages.action import TiltAdjustment
 from rclpy.action import ActionClient
 
+from sensor_msgs.msg import Image
+import cv2
+from cv_bridge import CvBridge
+import os
+
 # 係数: 0.6 / 300^2 = 6.67e-6
 K = 0.6 / (300 ** 2)
 
@@ -32,6 +37,12 @@ class BallOperate(Node):
     def __init__(self):
         super().__init__('ball_operate')
 
+        #= cv_bridgeの初期化と画像保存用のディレクトリ作成 =
+        self.bridge = CvBridge()
+        self.image_save_dir = os.path.join(os.path.expanduser('~'), 'images')
+        os.makedirs(self.image_save_dir, exist_ok=True)
+        self.image_counter = 0
+
         # ===== Publisher =====
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel_ball', 10)
         self.catch_pub = self.create_publisher(Bool, 'ball_catch', 10)
@@ -49,6 +60,8 @@ class BallOperate(Node):
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
         self.create_subscription(WallInfo,"wall_raw",self.wall_filtered_cb,10)
         self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
+        self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
+       
 
         # ===== Action Server =====
         self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
@@ -212,6 +225,20 @@ class BallOperate(Node):
     def tilt_adjustment_cb(self, msg: Twist):
         if self.adjusting:
             self.cmd_pub.publish(msg)
+
+    # ===============================
+    # raw_imageを受け取るコールバックだ
+    # ===============================
+    def raw_image_cb(self, msg: Image):
+        if not self.enabled:
+            return
+        try:
+            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+            filename = os.path.join(self.image_save_dir, f'{self.image_counter:06d}.jpg')
+            cv2.imwrite(filename, cv_image)
+            self.image_counter += 1
+        except Exception as e:
+            self.get_logger().error(f'画像保存エラー: {e}')
 
     # ===============================
     # 制御ループ
