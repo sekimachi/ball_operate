@@ -140,7 +140,7 @@ class BallOperate(Node):
         self.status = 0
         self.enabled = False
 
-        self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=250.0)
+        self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=10.0)
         self.led_pub.publish(self.msg_led)
 
 
@@ -160,7 +160,7 @@ class BallOperate(Node):
         self.status = 0
         self.enabled = False
 
-        self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=250.0)
+        self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=10.0)
         self.led_pub.publish(self.msg_led)
 
         self.catch_pub.publish(Bool(data=True))
@@ -175,7 +175,7 @@ class BallOperate(Node):
             self.msg_led.led_brightness = 1.0   
             self.msg_led.led_index = 5          
             self.msg_led.led_mode = "apply"      
-            self.msg_led.blink_duration = 1000.0 
+            self.msg_led.blink_duration = 10.0 
             if self.ball_color == "赤":                
                 self.msg_led.led_color = "RED"       
             elif self.ball_color == "青":
@@ -187,7 +187,7 @@ class BallOperate(Node):
             self.msg_led.led_brightness = 1.0    
             self.msg_led.led_index = 5           
             self.msg_led.led_mode = "blink"      
-            self.msg_led.blink_duration = 250.0 
+            self.msg_led.blink_duration = 10.0 
             if self.ball_color == "赤":                
                 self.msg_led.led_color = "RED"       
             elif self.ball_color == "青":
@@ -295,7 +295,7 @@ class BallOperate(Node):
                 self.enabled = False
                 self.status = 0
 
-                self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=250.0)
+                self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=10.0)
                 self.led_pub.publish(self.msg_led)
 
                 self.catch_pub.publish(Bool(data=True))
@@ -443,7 +443,7 @@ class BallOperate(Node):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
             
             
-            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=1000.0)
+            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=10.0)
             self.led_pub.publish(self.msg_led)
             
 
@@ -459,7 +459,7 @@ class BallOperate(Node):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
             
             
-            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=1000.0)
+            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=10.0)
             self.led_pub.publish(self.msg_led)
             
 
@@ -475,7 +475,7 @@ class BallOperate(Node):
             self.get_logger().info(f"目標ボール捕捉 back_count={self.back_count}")
             
             
-            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=1000.0)
+            self.msg_led = LedControl(led_brightness=1.0,led_index=5,led_color="WHITE",led_mode="apply",blink_duration=10.0)
             self.led_pub.publish(self.msg_led)
             
 
