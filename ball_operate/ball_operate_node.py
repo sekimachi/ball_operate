@@ -39,7 +39,7 @@ class BallOperate(Node):
 
         #= cv_bridgeの初期化と画像保存用のディレクトリ作成 =
         self.bridge = CvBridge()
-        self.image_save_dir = os.path.join(os.path.expanduser('~'), 'haru_ws', 'images')
+        self.image_save_dir = os.path.join(os.path.expanduser('~'), 'images')
         os.makedirs(self.image_save_dir, exist_ok=True)
         self.image_counter = 0
 
