@@ -60,8 +60,7 @@ class BallOperate(Node):
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
         self.create_subscription(WallInfo,"wall_raw",self.wall_filtered_cb,10)
         self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
-        self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
-       
+        self.create_subscription(Image, 'raw_image', self.raw_image_cb, 10)
 
         # ===== Action Server =====
         self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
