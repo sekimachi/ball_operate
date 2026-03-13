@@ -305,8 +305,8 @@ class BallOperate(Node):
                 self.enabled = False
                 self.status = 0
 
-                self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=10.0)
-                self.led_pub.publish(self.msg_led)
+                #self.msg_led = LedControl(led_brightness=0.0,led_index=5,led_color="RED",led_mode="apply",blink_duration=10.0)
+                #self.led_pub.publish(self.msg_led)
 
                 self.catch_pub.publish(Bool(data=True))
                 self.cmd_pub.publish(Twist())  # 完全停止
