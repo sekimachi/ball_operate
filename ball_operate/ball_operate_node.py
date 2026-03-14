@@ -256,12 +256,16 @@ class BallOperate(Node):
         except Exception as e:
             self.get_logger().error(f'画像保存エラー: {e}')
 
+    # ===============================
+    # キャリブレーション完了を受け取るコールバック
+    # ===============================
     def cali_ok_cb(self,msg: Bool):    
         self.enabled = True
         if self.next:
             self.next = False
             self.enabled = False
             self.status_pub.publish(Bool(data=False)) 
+
     # ===============================
     # 制御ループ
     # ===============================
@@ -292,11 +296,11 @@ class BallOperate(Node):
                 #self.re_back = True
             else:
                 self.next = True
-
                 self.re_serch = False
 
+        if self.cali_back:
             if self.cali_back_count > 0:
-                twist.linear.x = -(VEL + 0.15)   
+                twist.linear.x = -(VEL + 0.1)   
                 self.cali_back_count -= 1
                 self.cmd_pub.publish(twist)
             
@@ -306,7 +310,7 @@ class BallOperate(Node):
                 self.cali_back_count = 10
                 self.cali_back = False
                 self.enabled = False
-
+            return
 
         # ===== re後退フェーズ =====
         if self.re_back:
