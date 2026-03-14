@@ -273,16 +273,16 @@ class BallOperate(Node):
     # ===============================
     # raw_imageを受け取るコールバックだ
     # ===============================
-    def raw_image_cb(self, msg: Image):
-        if not self.enabled:
-            return
-        try:
-            cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
-            filename = os.path.join(self.image_save_dir, f'{self.image_counter:06d}.jpg')
-            cv2.imwrite(filename, cv_image)
-            self.image_counter += 1
-        except Exception as e:
-            self.get_logger().error(f'画像保存エラー: {e}')
+    # def raw_image_cb(self, msg: Image):
+    #     if not self.enabled:
+    #         return
+    #     try:
+    #         cv_image = self.bridge.imgmsg_to_cv2(msg, desired_encoding='bgr8')
+    #         filename = os.path.join(self.image_save_dir, f'{self.image_counter:06d}.jpg')
+    #         cv2.imwrite(filename, cv_image)
+    #         self.image_counter += 1
+    #     except Exception as e:
+    #         self.get_logger().error(f'画像保存エラー: {e}')
 
     # ===============================
     # キャリブレーション完了を受け取るコールバック
