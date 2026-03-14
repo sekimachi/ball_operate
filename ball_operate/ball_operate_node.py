@@ -64,7 +64,7 @@ class BallOperate(Node):
         self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
         self.create_subscription(Twist,"cmd_vel_rotate",self.rotate_cb,10)
         self.create_subscription(Bool,"cali_ok",self.cali_ok_cb,10)
-        self.create_subscription(Image, 'ball_detector/raw_image', self.raw_image_cb, 10)
+        #self.create_subscription(Image, 'ball_detector/raw_image', self.raw_image_cb, 10)
         
         # ===== Action Server =====
         self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
@@ -310,6 +310,10 @@ class BallOperate(Node):
                 if self.rotating == False:
                     self.cmd_pub.publish(Twist())  # 常に0
             
+            return
+
+        if self.last_msg is None:
+            self.cmd_pub.publish(Twist())
             return
 
 
