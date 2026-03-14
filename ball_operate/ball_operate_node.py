@@ -127,6 +127,7 @@ class BallOperate(Node):
     #  ON / OFFにつかう
     # ===============================
     def enable_cb(self, msg: Bool):
+        self._logger.info("探索が始まるよ！")
         self.enabled = msg.data
 
 
@@ -366,9 +367,9 @@ class BallOperate(Node):
             goal_msg.mode = "delta"
             goal_msg.angle = -90.0
         
-            self.adjustment_client.wait_for_server()
+            self.rotate_client.wait_for_server()
 
-            future = self.adjustment_client.send_goal_async(goal_msg)
+            future = self.rotate_client.send_goal_async(goal_msg)
             future.add_done_callback(self.rotate_response_callback)
             return
 
@@ -409,7 +410,7 @@ class BallOperate(Node):
                 self.LED_control(0)
             if self.status == 1:
                 self.LED_control(1)
-            
+
 
 
         self.his_status = self.status
