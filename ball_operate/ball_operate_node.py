@@ -14,6 +14,7 @@ from sensor_msgs.msg import Image
 import cv2
 from cv_bridge import CvBridge
 import os
+from imrc_messages.action import Rotate
 
 # 係数: 0.6 / 300^2 = 6.67e-6
 K = 0.6 / (300 ** 2)
@@ -61,11 +62,13 @@ class BallOperate(Node):
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
         self.create_subscription(WallInfo,"wall_raw",self.wall_filtered_cb,10)
         self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
+        self.create_subscription(Twist,"cmd_vel_rotate",self.rotate_cb,10)
         self.create_subscription(Bool,"cali_ok",self.cali_ok_cb,10)
         self.create_subscription(Image, 'ball_detector/raw_image', self.raw_image_cb, 10)
         
         # ===== Action Server =====
         self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
+        self.rotate_client = ActionClient(self, Rotate, 'Rotate')
 
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
@@ -106,6 +109,7 @@ class BallOperate(Node):
 
         self.one_rotate = False
         self.two_rotate = False
+        self.rotating = False
 
     # ============================
     # 壁までの情報たちをうけるべ
@@ -225,7 +229,7 @@ class BallOperate(Node):
         self.re_serch = True
 
     # ===============================
-    # Actionの結果を受け取るコールバックだとおもう
+    # adjustment_Actionの結果を受け取るコールバックだとおもう
     # ===============================
     def adjustment_response_callback(self, future):
         goal_handle = future.result()
@@ -243,6 +247,27 @@ class BallOperate(Node):
     # ===============================
     def tilt_adjustment_cb(self, msg: Twist):
         if self.adjusting:
+            self.cmd_pub.publish(msg)
+
+    # ===============================
+    # rotate_Actionの結果を受け取るコールバックだとおもう
+    # ===============================
+    def rotate_response_callback(self, future):
+        goal_handle = future.result()
+        
+        get_result_future = goal_handle.get_result_async()
+        get_result_future.add_done_callback(self.rotate_result_callback)
+
+    def rotate_result_callback(self, future):
+        self.rotating = False
+        self.enabled = True
+        self.get_logger().info("回転完了")
+
+    # ===============================
+    # /cmd_vel_rotateをcmd_vel_ballに変換するコールバック
+    # ===============================
+    def rotate_cb(self, msg: Twist):
+        if self.rotating:
             self.cmd_pub.publish(msg)
 
     # ===============================
@@ -280,8 +305,10 @@ class BallOperate(Node):
 
         # ===== Action が来ていない or 終了後 =====
         if not self.enabled:
-            if self.adjusting == False:
-                self.cmd_pub.publish(Twist())  # 常に0
+            if self.adjusting == False :
+                if self.rotating == False:
+                    self.cmd_pub.publish(Twist())  # 常に0
+            
             return
 
 
@@ -303,23 +330,22 @@ class BallOperate(Node):
                 self.next = True
                 self.re_serch = False
 
+        # キャリブレ前の動き
         if self.cali_back:    
+            self._logger.info("キャリブレーション前の動きにはいったよ")
             self.cali_back = False
             self.enabled = False
-            self.adjusting = True
-            goal_msg = TiltAdjustment.Goal()
-            goal_msg.direction_x = 'B'
-            goal_msg.distance_x = 0.45
-            goal_msg.direction_y = 'R'
-            goal_msg.distance_y = 0.37
-            goal_msg.angle_direction = 'B'
-            goal_msg.angle = 0.0
-        
-            self.adjustment_client.wait_for_server()
+            self.rotating = True
 
-            future = self.adjustment_client.send_goal_async(goal_msg)
-            future.add_done_callback(self.adjustment_response_callback)
-            
+            goal_msg = Rotate.Goal()
+            goal_msg.mode = "delta" 
+            goal_msg.angle = 90.0
+        
+            self.rotate_client.wait_for_server()
+
+            future = self.rotate_client.send_goal_async(goal_msg)
+            future.add_done_callback(self.rotate_response_callback)
+            self._logger.info("アクションのゴールを送ったよ")
             self.one_rotate = True
             return
 
@@ -330,23 +356,20 @@ class BallOperate(Node):
             return
         
         if self.two_rotate:
+            self._logger.info("２回めのアクションのゴールを送ったよ")
             self.enabled = False
-            self.adjusting = True
+            self.rotating = True
             self.two_rotate = False
             self.back_count = 0
-            
-            goal_msg = TiltAdjustment.Goal()
-            goal_msg.direction_x = 'B'
-            goal_msg.distance_x = 0.45
-            goal_msg.direction_y = 'R'
-            goal_msg.distance_y = 0.37
-            goal_msg.angle_direction = 'B'
-            goal_msg.angle = 0.0
+
+            goal_msg = Rotate.Goal()
+            goal_msg.mode = "delta"
+            goal_msg.angle = -90.0
         
             self.adjustment_client.wait_for_server()
 
             future = self.adjustment_client.send_goal_async(goal_msg)
-            future.add_done_callback(self.adjustment_response_callback)
+            future.add_done_callback(self.rotate_response_callback)
             return
 
 
