@@ -61,9 +61,9 @@ class BallOperate(Node):
         self.create_subscription(Bool,"re_detect",self.re_detect_cb,10)
         self.create_subscription(WallInfo,"wall_raw",self.wall_filtered_cb,10)
         self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
-        self.create_subscription(Image, 'raw_image', self.raw_image_cb, 10)
         self.create_subscription(Bool,"cali_ok",self.cali_ok_cb,10)
-
+        self.create_subscription(Image, 'ball_detector/raw_image', self.raw_image_cb, 10)
+        
         # ===== Action Server =====
         self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
 
@@ -103,6 +103,9 @@ class BallOperate(Node):
         self.cali_back_count = 10
         self.cali_back = False
         self.next = False
+
+        self.one_rotate = False
+        self.two_rotate = False
 
     # ============================
     # 壁までの情報たちをうけるべ
@@ -261,7 +264,9 @@ class BallOperate(Node):
     # ===============================
     def cali_ok_cb(self,msg: Bool):    
         self.enabled = True
+        self.two_rotate = True
         if self.next:
+            self. two_rotate = False
             self.next = False
             self.enabled = False
             self.status_pub.publish(Bool(data=False)) 
@@ -298,19 +303,51 @@ class BallOperate(Node):
                 self.next = True
                 self.re_serch = False
 
-        if self.cali_back:
-            if self.cali_back_count > 0:
-                twist.linear.x = -(VEL + 0.1)   
-                self.cali_back_count -= 1
-                self.cmd_pub.publish(twist)
+        if self.cali_back:    
+            self.cali_back = False
+            self.enabled = False
+            self.adjusting = True
+            goal_msg = TiltAdjustment.Goal()
+            goal_msg.direction_x = 'B'
+            goal_msg.distance_x = 0.45
+            goal_msg.direction_y = 'R'
+            goal_msg.distance_y = 0.37
+            goal_msg.angle_direction = 'B'
+            goal_msg.angle = 0.0
+        
+            self.adjustment_client.wait_for_server()
+
+            future = self.adjustment_client.send_goal_async(goal_msg)
+            future.add_done_callback(self.adjustment_response_callback)
             
-            else:
-                self.cali_back = False
-                self.cali_pub.publish(Bool(data=True))
-                self.cali_back_count = 10
-                self.cali_back = False
-                self.enabled = False
+            self.one_rotate = True
             return
+
+        if self.one_rotate:
+            self.cali_pub.publish(Bool(data=True))
+            self.enabled = False
+            self.one_rotate = False
+            return
+        
+        if self.two_rotate:
+            self.enabled = False
+            self.adjusting = True
+            self.two_rotate = False
+
+            goal_msg = TiltAdjustment.Goal()
+            goal_msg.direction_x = 'B'
+            goal_msg.distance_x = 0.45
+            goal_msg.direction_y = 'R'
+            goal_msg.distance_y = 0.37
+            goal_msg.angle_direction = 'B'
+            goal_msg.angle = 0.0
+        
+            self.adjustment_client.wait_for_server()
+
+            future = self.adjustment_client.send_goal_async(goal_msg)
+            future.add_done_callback(self.adjustment_response_callback)
+            return
+
 
         # ===== re後退フェーズ =====
         if self.re_back:
@@ -428,7 +465,7 @@ class BallOperate(Node):
             return
         
         self.status = 1
-  
+
 
         # ===== 通常追従 ===== 
         if self.reverse_operating == False:
