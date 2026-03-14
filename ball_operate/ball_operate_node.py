@@ -201,7 +201,7 @@ class BallOperate(Node):
             self.msg_led.led_brightness = 1.0   
             self.msg_led.led_index = 5          
             self.msg_led.led_mode = "apply"      
-            self.msg_led.blink_duration = 10.0 
+            self.msg_led.blink_duration = 100.0 
             if self.ball_color == "赤":                
                 self.msg_led.led_color = "RED"       
             elif self.ball_color == "青":
@@ -213,7 +213,7 @@ class BallOperate(Node):
             self.msg_led.led_brightness = 1.0    
             self.msg_led.led_index = 5           
             self.msg_led.led_mode = "blink"      
-            self.msg_led.blink_duration = 10.0 
+            self.msg_led.blink_duration = 100.0 
             if self.ball_color == "赤":                
                 self.msg_led.led_color = "RED"       
             elif self.ball_color == "青":
@@ -371,7 +371,7 @@ class BallOperate(Node):
 
             goal_msg = Rotate.Goal()
             goal_msg.mode = "delta"
-            goal_msg.angle = 270.0
+            goal_msg.angle = 0.0
         
             self.rotate_client.wait_for_server()
 
