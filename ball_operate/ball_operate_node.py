@@ -370,8 +370,8 @@ class BallOperate(Node):
             self.back_count = 0
 
             goal_msg = Rotate.Goal()
-            goal_msg.mode = "absolute"
-            goal_msg.angle = 0.0
+            goal_msg.mode = "delta"
+            goal_msg.angle = -90.0
         
             self.rotate_client.wait_for_server()
 
