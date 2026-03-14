@@ -68,7 +68,9 @@ class BallOperate(Node):
         
         # ===== Action Server =====
         self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
-        self.rotate_client = ActionClient(self, Rotate, 'Rotate')
+        self.rotate_client = ActionClient(self, Rotate, 'rotate')
+        while not self.rotate_client.wait_for_server(timeout_sec=1.0):
+            self.get_logger().info("Waiting for rotate action...")
 
         # ===== Timer =====
         self.create_timer(1.0 / FPS, self.timer_cb)
