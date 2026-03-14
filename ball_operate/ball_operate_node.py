@@ -49,6 +49,7 @@ class BallOperate(Node):
         self.led_pub = self.create_publisher(LedControl,'led_cmd',10)
         self.status_pub = self.create_publisher(Bool,'detect_ball_status',10)
         self.capture_pub = self.create_publisher(Bool, 'ball_capture', 10)
+        self.cali_pub = self.create_publisher(Bool, 'ball_cali', 10)
 
         # ===== Subscriber =====
         self.create_subscription(BallInfo, 'ball_info', self.ball_cb, 10)
@@ -61,6 +62,7 @@ class BallOperate(Node):
         self.create_subscription(WallInfo,"wall_raw",self.wall_filtered_cb,10)
         self.create_subscription(Twist,"cmd_vel_tilt_adjustment",self.tilt_adjustment_cb,10)
         self.create_subscription(Image, 'raw_image', self.raw_image_cb, 10)
+        self.create_subscription(Bool,"cali_ok",self.cali_ok_cb,10)
 
         # ===== Action Server =====
         self.adjustment_client = ActionClient(self, TiltAdjustment, 'TiltAdjustment')
@@ -96,6 +98,11 @@ class BallOperate(Node):
         self.prev_error_l = 0.0
 
         self.msg_led = LedControl()
+
+
+        self.cali_back_count = 10
+        self.cali_back = False
+        self.next = False
 
     # ============================
     # 壁までの情報たちをうけるべ
@@ -249,6 +256,12 @@ class BallOperate(Node):
         except Exception as e:
             self.get_logger().error(f'画像保存エラー: {e}')
 
+    def cali_ok_cb(self,msg: Bool):    
+        self.enabled = True
+        if self.next:
+            self.next = False
+            self.enabled = False
+            self.status_pub.publish(Bool(data=False)) 
     # ===============================
     # 制御ループ
     # ===============================
@@ -269,17 +282,30 @@ class BallOperate(Node):
 
         # ==== 落ちたか落ちてないか判定 ====
         if self.re_serch:
+            self.cali_back = True
+
             if (-(DX_TH + 10) <= dx <= (DX_TH + 10) and
                 -(DY_TH + 8) <= dy <= (DY_TH + 8) and
                 DEPTH_MIN - 1 <= dep <= DEPTH_MAX + 1
             ):
                 self.re_serch = False
-                self.re_back = True
+                #self.re_back = True
             else:
+                self.next = True
+
                 self.re_serch = False
+
+            if self.cali_back_count > 0:
+                twist.linear.x = -(VEL + 0.15)   
+                self.cali_back_count -= 1
+                self.cmd_pub.publish(twist)
+            
+            else:
+                self.cali_back = False
+                self.cali_pub.publish(Bool(data=True))
+                self.cali_back_count = 10
+                self.cali_back = False
                 self.enabled = False
-                self.status_pub.publish(Bool(data=False))
-            return
 
 
         # ===== re後退フェーズ =====
@@ -328,9 +354,9 @@ class BallOperate(Node):
             self.status = 0
 
             if self.reverse_operating == False:
-                twist.linear.y = -0.5
+                twist.linear.y = -0.4
             else:
-                twist.linear.y = 0.5
+                twist.linear.y = 0.4
 
 
 
@@ -341,7 +367,7 @@ class BallOperate(Node):
                     error = self.right_distance - self.wall_target
                     d_error = (error - self.prev_error_r) * FPS
                     u = self.kp_wall * error + self.kd_wall * d_error
-                    twist.linear.y = -max(-0.5, min(0.5, u))
+                    twist.linear.y = -max(-0.4, min(0.4, u))
                     self.prev_error_r = error
 
                     # 停止したら方向反転
@@ -372,7 +398,7 @@ class BallOperate(Node):
                     error = self.left_distance - self.wall_target
                     d_error = (error - self.prev_error_l) * FPS
                     u = self.kp_wall * error + self.kd_wall * d_error
-                    twist.linear.y = max(-0.5, min(0.5, u))
+                    twist.linear.y = max(-0.4, min(0.4, u))
                     self.prev_error_l = error
 
                     # 停止したら方向反転
